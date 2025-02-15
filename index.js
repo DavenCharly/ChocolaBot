@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField } from 'discord.js';
 import fs from 'fs';
 import fetch from 'node-fetch';
+import express from 'express';
 import { weatherCommand } from './weather.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -20,6 +21,16 @@ client.login(process.env.BOT_TOKEN);
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
+});
+
+// Set up a basic Express web server for uptime pinging.
+const app = express();
+const port = process.env.PORT || 3000;
+app.get('/', (req, res) => {
+  res.send('Bot is running!');
+});
+app.listen(port, () => {
+  console.log(`Web server is running on port ${port}`);
 });
 
 // Load or initialize XP data
@@ -44,7 +55,7 @@ client.on('messageCreate', async (message) => {
     // If on cooldown, do nothing for XP purposes.
   } else {
     xpCooldown.set(userId, now);
-setTimeout(() => xpCooldown.delete(userId), cooldownTime);
+    setTimeout(() => xpCooldown.delete(userId), cooldownTime);
     if (!xpData[userId]) {
       xpData[userId] = { xp: 0, level: 0 };
     }
@@ -79,15 +90,15 @@ setTimeout(() => xpCooldown.delete(userId), cooldownTime);
     weatherCommand(message, args);
   } else if (command === 'resetleaderboard') {
     // Admin permission check.
-    if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    if (!message.member || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return message.channel.send(`What?! You don’t have permission for that, <@${message.author.id}>!`);
     }
     message.channel.send("Mmm~ Are you absolutely sure you want to reset the leaderboard? Type 'yes' to confirm, 'no' to cancel.")
       .then(() => {
         const filter = response => {
-            return (response.author.id === message.author.id) &&
-                   (response.content.toLowerCase() === 'yes' || response.content.toLowerCase() === 'no');
-          };
+          return (response.author.id === message.author.id) &&
+                 (response.content.toLowerCase() === 'yes' || response.content.toLowerCase() === 'no');
+        };
         message.channel.awaitMessages({ filter, time: 15000, max: 1, errors: ['time'] })
           .then(collected => {
             const reply = collected.first();
@@ -118,7 +129,7 @@ setTimeout(() => xpCooldown.delete(userId), cooldownTime);
       .setTitle("🏆 Leaderboard")
       .setColor("#ff66b2")
       .setThumbnail(client.user.displayAvatarURL())
-      .setFooter({ text: `${topUsername}, your days are counted!`, iconURL: topUser.displayAvatarURL() })
+      .setFooter({ text: `${topUsername}, your days are counted!`, iconURL: topUser ? topUser.displayAvatarURL() : message.author.displayAvatarURL() })
       .setTimestamp();
 
     let leaderboardText = "";
@@ -169,7 +180,7 @@ function parseTime(time) {
   const match = time.match(/^(\d+)(s|m|h)$/i);
   if (!match) return null;
   const value = parseInt(match[1]);
-  const unit = match[2];
+  const unit = match[2].toLowerCase();
   if (unit === 's') return value * 1000;
   if (unit === 'm') return value * 60 * 1000;
   if (unit === 'h') return value * 60 * 60 * 1000;
