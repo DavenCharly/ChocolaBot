@@ -255,33 +255,4 @@ client.on('messageCreate', async message => {
           });
       }
     }
-  });
-  
-    // Leaderboard Command
-    if (message.content.toLowerCase().startsWith(`${prefix}leaderboard`)) {
-      const sorted = Object.entries(xpData).sort((a, b) => b[1].xp - a[1].xp);
-      if (sorted.length === 0) return message.channel.send("No XP data available yet!");
-  
-      const topUserId = sorted[0] ? sorted[0][0] : null; // Get the user ID of the top player
-      const topUser = topUserId ? await client.users.fetch(topUserId).catch(() => null) : null;
-      const topUsername = topUser ? topUser.username : "Unknown";
-  
-      const embed = new EmbedBuilder()
-        .setTitle("🏆 Leaderboard")
-        .setColor("#ff66b2")
-        .setThumbnail(client.user.displayAvatarURL())
-        .setFooter({ text: `${topUsername}, your days are counted! <:SurrenderNyow:1335062346460041236>`, iconURL: message.author.displayAvatarURL() })
-        .setTimestamp();
-  
-      let leaderboardText = "";
-      for (let i = 0; i < Math.min(sorted.length, 10); i++) {
-        const [userId, data] = sorted[i];
-        const user = await client.users.fetch(userId).catch(() => null);
-        const username = user ? user.username : `Unknown User (${userId})`;
-        leaderboardText += `**${i + 1}. ${username}** - XP: \`${data.xp}\` (Level \`${data.level}\`)\n`;
-      }
-  
-      embed.setDescription(leaderboardText);
-      message.channel.send({ embeds: [embed] });
-    }
-  
+  })
