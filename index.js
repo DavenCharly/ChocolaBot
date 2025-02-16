@@ -28,6 +28,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.get('/', (req, res) => {
   res.send('Bot is running!');
+  
+// Ping? Maybe? Hopefully?
+  app.get('/ping', (req, res) => {
+    if (client.isReady()) {
+      res.status(200).send("Chocola's Alive!");
+    } else {
+      res.status(500).send('I think Chocola is deadge');
+    }
+  });
+
+
 });
 app.listen(port, () => {
   console.log(`Web server is running on port ${port}`);
