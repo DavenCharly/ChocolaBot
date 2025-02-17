@@ -129,31 +129,30 @@ client.on('messageCreate', async (message) => {
           .catch(() => message.channel.send("Oh no! Chocola didn’t hear you in time... The reset is canceled!"));
       });
   } else if (command === 'leaderboard') {
-    const sorted = Object.entries(xpData).sort((a, b) => b[1].xp - a[1].xp);
+    let currentXpData = {};
+    try {
+      if (fs.existsSync(xpFile)) {
+        currentXpData = JSON.parse(fs.readFileSync(xpFile, 'utf8'));
+      }
+    } catch (err) {
+      console.error('Error reloading XP data:', err);
+    }
+  
+    const sorted = Object.entries(currentXpData).sort((a, b) => b[1].xp - a[1].xp);
     if (sorted.length === 0) return message.channel.send("No XP data available yet!");
-
+  
     const embed = new EmbedBuilder()
       .setTitle("🏆 Leaderboard")
       .setColor("#ff66b2")
       .setThumbnail(client.user.displayAvatarURL())
       .setTimestamp();
-
+  
     let leaderboardText = "";
     for (let i = 0; i < Math.min(sorted.length, 10); i++) {
       const [userId, data] = sorted[i];
       leaderboardText += `**${i + 1}. <@${userId}>** - XP: \`${data.xp}\` (Level \`${data.level}\`)\n`;
     }
-
+  
     embed.setDescription(leaderboardText);
     message.channel.send({ embeds: [embed] });
-  }
-});
-
-// --- Utility Functions ---
-function parseTime(time) {
-  const match = time.match(/^(\d+)(s|m|h)$/i);
-  if (!match) return null;
-  const value = parseInt(match[1]);
-  const unit = match[2].toLowerCase();
-  return unit === 's' ? value * 1000 : unit === 'm' ? value * 60 * 1000 : unit === 'h' ? value * 60 * 60 * 1000 : null;
-}
+  }})
