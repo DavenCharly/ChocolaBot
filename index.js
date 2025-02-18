@@ -128,7 +128,16 @@ client.on('messageCreate', async (message) => {
           })
           .catch(() => message.channel.send("Oh no! Chocola didn’t hear you in time... The reset is canceled!"));
       });
-  } else if (command === 'leaderboard') {
+  } else if (command === 'shutdown') {
+    if (!message.member || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return message.channel.send(`Ehh?! You don’t have permission to do that, <@${message.author.id}>!`);
+    }
+  
+    message.channel.send("Mmm~ Chocola is going to take a nap now! 💤").then(() => {
+      process.exit(0);
+    });
+  }
+  else if (command === 'leaderboard') {
     let currentXpData = {};
     try {
       if (fs.existsSync(xpFile)) {
@@ -155,14 +164,4 @@ client.on('messageCreate', async (message) => {
   
     embed.setDescription(leaderboardText);
     message.channel.send({ embeds: [embed] });
-
-    else if (command === 'shutdown') {
-      if (!message.member || !message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        return message.channel.send(`Ehh?! You don’t have permission to do that, <@${message.author.id}>!`);
-      }
-    
-      message.channel.send("Mmm~ Chocola is going to take a nap now! 💤").then(() => {
-        process.exit(0);
-      });
-    }
   }})
