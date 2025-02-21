@@ -109,9 +109,6 @@ function remindMeCommand(message, args) {
   }, timeMs);
 }
 
-const xpCooldown = new Map();
-const cooldownTime = 10000; // 10 seconds
-
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
