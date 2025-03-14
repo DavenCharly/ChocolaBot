@@ -3,6 +3,7 @@ import fs from 'fs';
 import fetch from 'node-fetch';
 import express from 'express';
 import { weatherCommand } from './weather.js';
+import { stfuCommand } from './stfu.js'
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -112,6 +113,7 @@ function remindMeCommand(message, args) {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
+  
   // --- Command Handling ---
   if (!message.content.startsWith(prefix)) return;
 
@@ -124,5 +126,6 @@ client.on('messageCreate', async (message) => {
     timerCommand(message, args);
   } else if (command === 'weather') {
     weatherCommand(message, args);
-    }
-  })
+  } else if (command === 'stfu') {
+    stfuCommand(client, message);
+  }})
