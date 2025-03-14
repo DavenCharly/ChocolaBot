@@ -15,7 +15,6 @@ export const stfuCommand = (client, message) => {
   
     setTimeout(() => {
         client.destroy();
-        process.exit(0);  
       }, 2000); 
     };
   
